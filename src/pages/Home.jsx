@@ -4,7 +4,9 @@ import { features, faqs, routes, amenities, OFFERS } from "../data.js";
 import { Reveal, CountUp } from "../components/motion.jsx";
 import HeroScene from "../components/HeroScene.jsx";
 import Field from "../components/Field.jsx";
+import PortSelect from "../components/PortSelect.jsx";
 import Icon from "../components/Icon.jsx";
+import { todayISO } from "../api/ferryApi.js";
 
 const fromPorts = [...new Set(routes.map((r) => r.from))];
 const toPorts = [...new Set(routes.map((r) => r.to))];
@@ -12,8 +14,8 @@ const toPorts = [...new Set(routes.map((r) => r.to))];
 // Booking-style search card: From / To / Date / Passengers.
 function SearchCard() {
   const nav = useNavigate();
-  const [f, setF] = useState({ from: "", to: "", date: "", pax: 1 });
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayISO();
+  const [f, setF] = useState({ from: "", to: "", date: today, pax: 1 });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const submit = (e) => {
     e.preventDefault();
@@ -23,12 +25,8 @@ function SearchCard() {
   };
   return (
     <form className="searchbar" onSubmit={submit}>
-      <Field as="select" label="From" icon="pin" value={f.from} onChange={set("from")}>
-        <option value="">Any port</option>{fromPorts.map((p) => <option key={p}>{p}</option>)}
-      </Field>
-      <Field as="select" label="To" icon="pin" value={f.to} onChange={set("to")}>
-        <option value="">Any port</option>{toPorts.map((p) => <option key={p}>{p}</option>)}
-      </Field>
+      <PortSelect label="From" value={f.from} onChange={(v) => setF((s) => ({ ...s, from: v }))} served={fromPorts} />
+      <PortSelect label="To" value={f.to} onChange={(v) => setF((s) => ({ ...s, to: v }))} served={toPorts} />
       <Field type="date" label="Travel date" icon="calendar" min={today} value={f.date} onChange={set("date")} />
       <Field as="select" label="Passengers" icon="user" value={f.pax} onChange={set("pax")}>
         {Array.from({ length: 10 }, (_, i) => <option key={i} value={i + 1}>{i + 1} passenger{i ? "s" : ""}</option>)}
@@ -98,7 +96,7 @@ export default function Home() {
                   <div className="rc-img"><img src={`/img/${r.img}.jpg`} alt="" loading="lazy" /><span className="rc-price">from ₹{r.price}</span></div>
                   <div className="rc-body">
                     <div className="rc-top"><b>{r.from}</b><Icon name="arrow" size={18} /><b>{r.to}</b></div>
-                    <div className="rc-bot"><Icon name="clock" size={16} /> {r.dep} – {r.arr}</div>
+                    <div className="rc-bot"><Icon name="clock" size={16} /> {r.deps.length} sailing{r.deps.length > 1 ? "s" : ""} per day · first {r.deps[0]}</div>
                   </div>
                 </Link>
               </Reveal>

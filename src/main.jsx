@@ -5,6 +5,8 @@ import App from "./App.jsx";
 import "./styles.css";
 import "./refine.css";
 import "./premium.css";
+import "./live.css";
+import "./combo.css";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter><App /></BrowserRouter>

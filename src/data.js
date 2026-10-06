@@ -1,21 +1,31 @@
 export const ports = ["Mumbai", "Alibag", "Elephanta", "Goa", "Karwar", "Kochi", "Lakshadweep"];
 
+// A "service" is a route that sails on certain days at certain times.
+//   deps      departure times every operating day (24h, local)
+//   dur       crossing time in minutes
+//   days      operating weekdays, 0 = Sunday ... 6 = Saturday
+//   monsoon   true if the service is paused from 1 Jun to 15 Sep
+//   capacity  passenger seats per sailing
 export const routes = [
-  { id: 1, from: "Mumbai", to: "Alibag", dep: "07:00", arr: "07:50", price: 450, vehicle: 1200, img: "rocks", tags: ["WiFi", "Vehicles"] },
-  { id: 2, from: "Alibag", to: "Mumbai", dep: "09:30", arr: "10:20", price: 450, vehicle: 1200, img: "pier", tags: ["WiFi", "Vehicles"] },
-  { id: 3, from: "Mumbai", to: "Elephanta", dep: "10:00", arr: "10:45", price: 300, vehicle: 0, img: "deck", tags: ["Sun deck"] },
-  { id: 4, from: "Mumbai", to: "Goa", dep: "13:00", arr: "20:30", price: 1800, vehicle: 4500, img: "waves", tags: ["Dining", "WiFi", "Vehicles"] },
-  { id: 5, from: "Goa", to: "Karwar", dep: "08:15", arr: "10:30", price: 750, vehicle: 2200, img: "beach", tags: ["WiFi", "Vehicles"] },
-  { id: 6, from: "Kochi", to: "Lakshadweep", dep: "16:00", arr: "06:00", price: 2400, vehicle: 0, img: "island", tags: ["Dining", "Cabins"] },
+  { id: 1, from: "Mumbai", to: "Alibag", price: 450, vehicle: 1200, img: "rocks", tags: ["WiFi", "Vehicles"],
+    deps: ["07:00", "09:30", "12:00", "15:30", "18:00"], dur: 50, days: [0, 1, 2, 3, 4, 5, 6], monsoon: true, capacity: 180 },
+  { id: 2, from: "Alibag", to: "Mumbai", price: 450, vehicle: 1200, img: "pier", tags: ["WiFi", "Vehicles"],
+    deps: ["08:15", "10:45", "13:15", "16:30", "19:00"], dur: 50, days: [0, 1, 2, 3, 4, 5, 6], monsoon: true, capacity: 180 },
+  { id: 3, from: "Mumbai", to: "Elephanta", price: 300, vehicle: 0, img: "deck", tags: ["Sun deck"],
+    deps: ["09:00", "10:00", "11:30", "13:00", "14:30"], dur: 45, days: [0, 2, 3, 4, 5, 6], monsoon: true, capacity: 150 },
+  { id: 4, from: "Mumbai", to: "Goa", price: 1800, vehicle: 4500, img: "waves", tags: ["Dining", "WiFi", "Vehicles"],
+    deps: ["13:00"], dur: 450, days: [2, 4, 6], monsoon: false, capacity: 220 },
+  { id: 5, from: "Goa", to: "Karwar", price: 750, vehicle: 2200, img: "beach", tags: ["WiFi", "Vehicles"],
+    deps: ["08:15", "15:00"], dur: 135, days: [0, 1, 2, 3, 4, 5, 6], monsoon: true, capacity: 160 },
+  { id: 6, from: "Kochi", to: "Lakshadweep", price: 2400, vehicle: 0, img: "island", tags: ["Dining", "Cabins"],
+    deps: ["16:00"], dur: 840, days: [1, 3, 5], monsoon: false, capacity: 120 },
 ];
 
-const mins = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
-export const duration = (r) => { let d = mins(r.arr) - mins(r.dep); if (d <= 0) d += 1440; return d; };
-export const fmtDur = (d) => {
-  const h = Math.floor(d / 60), m = d % 60;
+export const fmtDur = (mins) => {
+  const h = Math.floor(mins / 60), m = mins % 60;
   return [h && `${h}h`, m && `${String(m).padStart(h ? 2 : 1, "0")}m`].filter(Boolean).join(" ");
 };
-export const slotOf = (r) => { const h = Number(r.dep.slice(0, 2)); return h < 12 ? "Morning" : h < 17 ? "Afternoon" : "Evening"; };
+export const slotOf = (dep) => { const h = Number(dep.slice(0, 2)); return h < 12 ? "Morning" : h < 17 ? "Afternoon" : "Evening"; };
 
 // Promo codes: pct off the fare subtotal; optional rules.
 export const PROMOS = {
